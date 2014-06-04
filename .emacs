@@ -11,4 +11,6 @@
 (ido-mode 1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
 
