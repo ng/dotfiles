@@ -7,13 +7,13 @@
 ########## Variables
 
 # dotfiles directory
-dir=~/dotfiles                    
+dir=~/dotfiles
 
-# old dotfiles backup directory 
+# old dotfiles backup directory
 olddir=~/dotfiles_old
 
-# list of files/folders to symlink in homedir 
-files="emacs gitconfig tmux.conf"
+# list of files/folders to symlink in homedir
+files="bash_profile emacs gitconfig tmux.conf"
 
 ##########
 
