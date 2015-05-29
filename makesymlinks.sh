@@ -13,7 +13,7 @@ dir=~/dotfiles
 olddir=~/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files="bash_profile emacs gitconfig tmux.conf"
+files="bash_profile emacs gitconfig tmux.conf Xmodemap"
 
 ##########
 
