@@ -114,5 +114,4 @@ if ! shopt -oq posix; then
 fi
 
 export EDITOR="emacs -nw -q"
-export PS1='\u@\h \[\033[1;33m\]\w\[\033[0m\]$(parse_git_branch)$ '
 export CC=/usr/local/bin/gcc-4.2
