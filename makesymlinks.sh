@@ -13,7 +13,7 @@ dir=~/dotfiles
 olddir=~/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files="bash_aliases bashrc emacs gitconfig profile tmux.conf Xmodmap xinitrc"
+files="bash_aliases bashrc emacs gemrc gitconfig Guardfile profile tmux.conf Xmodmap xinitrc"
 
 ##########
 
