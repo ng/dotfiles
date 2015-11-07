@@ -113,5 +113,14 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# OS specific
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Mac OSX    
+    export CC=/usr/local/bin/gcc-4.2    
+fi
+
+
 export EDITOR="emacs -nw -q"
-export CC=/usr/local/bin/gcc-4.2
+
+# rbenv
+eval "$(rbenv init -)"
