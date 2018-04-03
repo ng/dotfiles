@@ -118,11 +118,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# OS specific
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # Mac OSX
-    # export CC=/usr/local/bin/gcc-4.2
-    export CC=/usr/local/Cellar/gcc/7.2.0/bin/gcc-7
+# Mac OSX specific
+if [[ "$OSTYPE" == "darwin"* ]]; then    
+    # export CC=/usr/local/bin/gcc-4.2    
 fi
 
 
