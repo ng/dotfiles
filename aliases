@@ -1,0 +1,28 @@
+#############
+# Aliases
+#############
+# MacOS
+alias dt='cd ~/Desktop; pwd'
+
+# ls
+alias ls='ls -G'
+alias ll='ls -alF'
+alias la='ls -A'
+
+# grep
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Canary
+alias canary-unsafe='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --disable-web-security'
+
+
+#############
+# Functions
+#############
+# Create an animated GIF from a video. Requires ffmpeg.
+function video2gif() {
+  input=$1 && ffmpeg -y -i $input -vf fps=10,scale=720:-1:flags=lanczos,palettegen "$input-palette.png" && ffmpeg -y -i $input -i "$input-palette.png" -loop -1 -filter_complex "fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse" "$input.gif"
+  rm $input-palette.png
+}

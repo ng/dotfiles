@@ -13,7 +13,7 @@ dir=~/dotfiles
 olddir=~/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files="bash_aliases bash_profile bashrc emacs gemrc gitconfig Guardfile profile tmux.conf Xmodmap xinitrc"
+files="aliases emacs gemrc gitconfig Guardfile invitae tmux.conf Xmodmap xinitrc zshrc"
 
 ##########
 
@@ -34,4 +34,3 @@ for file in $files; do
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file ~/.$file
 done
-
