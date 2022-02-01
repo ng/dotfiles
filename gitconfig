@@ -1,10 +1,10 @@
 [user]
-        name = Jonathan Ng
-        email = jon@jonathanng.com
+  name = Jonathan Ng
+  email = jon@jonathanng.com
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
-        editor = emacs
+  editor = emacs
 [color]
   ui = true
 [color "branch"]
@@ -30,11 +30,16 @@
   df = diff
   lg = log -p
 [push]
-        default = simple
+  default = simple
 [filter "media"]
-        clean = git-media-clean %f
-        smudge = git-media-smudge %f
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
 [filter "lfs"]
-	clean = git lfs clean %f
-	smudge = git lfs smudge %f
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
 	required = true
+	process = git-lfs filter-process
+[gpg]
+	program = gpg2
+[commit]
+	gpgsign = true
