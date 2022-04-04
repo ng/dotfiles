@@ -7,15 +7,13 @@
 ########## Variables
 
 # dotfiles directory
-dir=~/dotfiles
+dir=~/Documents/GitHub/dotfiles
 
 # old dotfiles backup directory
 olddir=~/dotfiles_old
 
 # list of files/folders to symlink in homedir
-files="aliases emacs gemrc gitconfig Guardfile invitae tmux.conf Xmodmap xinitrc zshrc"
-
-##########
+files="aliases emacs gemrc gitconfig Guardfile tmux.conf Xmodmap xinitrc zshrc zprofile"
 
 # create dotfiles_old in homedir
 echo -n "Creating $olddir for backup of any existing dotfiles in ~ ..."

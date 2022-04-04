@@ -1,6 +1,6 @@
 source ~/.aliases
 
-# openssl
+# OpenSSL
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CPPFLAGS="-I/usr/local/opt/openssl/include"
 
@@ -20,11 +20,19 @@ eval "$(pyenv init -)"
 # Poetry
 export PATH="$HOME/.poetry/bin:$PATH"
 
-# Brew: autocomplete
-if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-fi
-
 # Heroku: autocomplete
 HEROKU_AC_ZSH_SETUP_PATH=/Users/ng/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
 eval "$(pyenv init -)"
+
+# # Show Git branch
+## Load version control information
+autoload -Uz vcs_info
+precmd() { vcs_info }
+
+## Format the vcs_info_msg_0_ variable
+zstyle ':vcs_info:git:*' formats '%b'
+
+## Set up the prompt (with git branch name)
+setopt PROMPT_SUBST
+
+PROMPT='%n@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%F{white}$ '
