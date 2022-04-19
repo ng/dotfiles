@@ -1,13 +1,13 @@
 [user]
   name = Jonathan Ng
-  email = jon@jonathanng.com
+	email = jng@findoctave.com
 	signingkey = 2AF84BD2E2D86113
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
   editor = emacs
 [color]
-  ui = true
+  ui = auto
 [color "branch"]
   current = yellow black
   local = yellow
@@ -30,6 +30,7 @@
   co = checkout
   df = diff
   lg = log -p
+  cleanup = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|develop'`
 [push]
   default = simple
 [filter "media"]
