@@ -4,7 +4,7 @@
 
 # MacOS
 alias dt='cd ~/Desktop; pwd'
-alias gh='cd ~/Documents/GitHub; pwd'
+alias code='cd ~/Documents/GitHub; ll; pwd'
 
 # ls
 alias ls='ls -G'
@@ -19,6 +19,8 @@ alias egrep='egrep --color=auto'
 # Canary
 alias canary-unsafe='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --disable-web-security'
 
+# brew under Rosetta
+alias ibrew='arch -x86_64 /usr/local/bin/brew'
 
 ############
 # Functions
