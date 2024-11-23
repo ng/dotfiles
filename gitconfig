@@ -1,6 +1,6 @@
 [user]
   name = Jonathan Ng
-	email = jng@jonathanng.com
+	email = jon@jonathanng.com
 	signingkey = A0669F670815F0AA
 [core]
   quotepath = false
@@ -45,3 +45,5 @@
 	program = /opt/homebrew/bin/gpg
 [commit]
 	gpgsign = true
+[tag]
+	gpgSign = true
