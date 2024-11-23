@@ -15,6 +15,15 @@ olddir=~/dotfiles_old
 # list of files/folders to symlink in homedir
 files="aliases emacs gemrc gitconfig Guardfile local tmux.conf Xmodmap xinitrc zshrc zprofile"
 
+# install Tmux Plugin Manager if it doesn't exist
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+    echo "TPM not found. Cloning TPM..."
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    echo "TPM installed."
+else
+    echo "TPM already installed."
+fi
+
 # create dotfiles_old in homedir
 echo -n "Creating $olddir for backup of any existing dotfiles in ~ ..."
 mkdir -p $olddir
@@ -32,3 +41,4 @@ for file in $files; do
     echo "Creating symlink to $file in home directory."
     ln -s $dir/$file ~/.$file
 done
+

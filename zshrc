@@ -10,9 +10,10 @@ setopt INC_APPEND_HISTORY # following should be turned off, if sharing history v
 setopt EXTENDED_HISTORY
 setopt HIST_IGNORE_ALL_DUPS
 
+# gpg
+export GPG_TTY=$(tty)
+
 # OpenSSL
-# export LDFLAGS="-L/usr/local/opt/openssl/lib"
-# export CPPFLAGS="-I/usr/local/opt/openssl/include"
 export LDFLAGS="-L/opt/homebrew/opt/openssl@3/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
 export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig"
@@ -50,3 +51,11 @@ zstyle ':vcs_info:git:*' formats '%b'
 ## Set up the prompt (with git branch name)
 setopt PROMPT_SUBST
 PROMPT='%n@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%F{white}$ '
+
+# pnpm
+export PNPM_HOME="/Users/jonathanng/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

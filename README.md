@@ -2,5 +2,5 @@
 From the project root execute:
 `./makesymlinks.sh`
 
-# Install Tmux Plugin Manager
-`git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
+Installs the Tmux Plugin Manager if it isn't present.
+- `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
