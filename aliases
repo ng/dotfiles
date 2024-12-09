@@ -25,6 +25,9 @@ alias canary-unsafe='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Goo
 # brew under Rosetta
 alias ibrew='arch -x86_64 /usr/local/bin/brew'
 
+# Pixel sync
+alias pixel-sync='adb-sync ~/Pictures/Sync'
+
 ############
 # Functions
 ############
@@ -33,4 +36,67 @@ alias ibrew='arch -x86_64 /usr/local/bin/brew'
 function video2gif() {
   input=$1 && ffmpeg -y -i $input -vf fps=10,scale=1920:-1:flags=lanczos,palettegen "$input-palette.png" && ffmpeg -y -i $input -i "$input-palette.png" -loop -1 -filter_complex "fps=10,scale=1080:-1:flags=lanczos[x];[x][1:v]paletteuse" "$input.gif"
   rm $input-palette.png
+}
+
+# Sync a local directory to a connected Android device using ADB.
+function adb-sync() {
+  # List connected devices
+  adb devices
+  
+  local default_source="."
+  local default_destination="/storage/emulated/0/DCIM/Camera"
+
+  # Use the provided source directory or fall back to the default
+  local source_dir="${1:-$default_source}"
+
+  # Use the provided destination directory or fall back to the default
+  local destination_path="${2:-$default_destination}"
+
+  # Echo the inputs with ASCII colors and emojis
+  echo -e "\033[1;32m📂 Source Directory: \033[0m$source_dir"
+  echo -e "\033[1;34m📁 Destination Path: \033[0m$destination_path"
+
+  # Execute the adb push command
+  adb push "${source_dir%/}/." "$destination_path"
+
+ # Get the file count in the destination directory
+  echo -e "\033[1;33m🔍 Fetching file count in destination directory...\033[0m"
+  local file_count=$(adb shell "ls \"$destination_path\" | wc -l")
+
+  echo -e "\033[1;36m📋 File Count in $destination_path: $file_count\033[0m"
+}
+
+function pixel-clean() {
+  # List connected devices
+  adb devices
+
+  local default_destination="/storage/emulated/0/DCIM/Camera"
+
+  # Use the provided destination directory or fall back to the default
+  local destination_path="${1:-$default_destination}"
+
+  # Get file count in the directory before deletion
+  local file_count=$(adb shell "ls -1 \"$destination_path\" 2>/dev/null | wc -l")
+  file_count=${file_count:-0} # Default to 0 if the directory doesn't exist or is empty
+
+  # Warning with file count
+  echo -e "\033[1;31m⚠️ WARNING: $destination_path contains $file_count file(s). This will delete all files. Continue? (y/N)\033[0m"
+  read -r confirmation
+
+  if [[ "$confirmation" == "y" || "$confirmation" == "Y" ]]; then
+    echo -e "\033[1;33m🗑️ Deleting all files in $destination_path...\033[0m"
+    adb shell "rm -rf \"$destination_path\"/*"
+
+    # Verify the directory contents after deletion
+    echo -e "\033[1;33m🔍 Verifying $destination_path...\033[0m"
+    local remaining_files=$(adb shell "ls -A \"$destination_path\" 2>/dev/null")
+    if [[ -z "$remaining_files" ]]; then
+      echo -e "\033[1;32m✅ Directory is empty: $destination_path\033[0m"
+    else
+      echo -e "\033[1;31m❌ Directory is not empty:\033[0m"
+      echo -e "\033[1;34m$remaining_files\033[0m"
+    fi
+  else
+    echo -e "\033[1;34m❌ Operation canceled.\033[0m"
+  fi
 }
