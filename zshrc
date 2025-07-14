@@ -53,7 +53,7 @@ setopt PROMPT_SUBST
 PROMPT='%n@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%F{white}$ '
 
 # pnpm
-export PNPM_HOME="/Users/jonathanng/Library/pnpm"
+export PNPM_HOME="$HOME/.pnpm-global"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
