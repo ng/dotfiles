@@ -18,7 +18,7 @@ timestamp=$(date +"%Y%m%d_%H%M%S")
 old_dir=$base_root_dir/dotfiles/backup/$timestamp
 
 # list of files/folders to symlink in homedir
-files="aliases emacs gemrc gitconfig Guardfile local tmux.conf Xmodmap xinitrc zshrc zprofile"
+files="aliases emacs gemrc gitconfig Guardfile local-aliases tmux.conf Xmodmap xinitrc zshrc zprofile"
 
 
 ############################
