@@ -1,7 +1,7 @@
 [user]
   name = Jonathan Ng
 	email = jon@jonathanng.com
-	signingkey = A0669F670815F0AA
+	signingkey = 1A6D35E6D2AA9BEF
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
@@ -24,6 +24,7 @@
   untracked = cyan reverse
   branch = magenta
 [alias]
+  s = switch
   st = status
   ci = commit
   br = branch
