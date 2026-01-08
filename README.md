@@ -4,9 +4,19 @@ Sets up dotfiles with automatic backup and organized directory structure. Existi
 
 ## Usage
 
-```bash
-./makesymlinks
-```
+- Quick bootstrap (installs tmux via apt-get or Homebrew, then links dotfiles):
+  ```bash
+  ./bootstrap
+  ```
+- Link dotfiles only:
+  ```bash
+  ./makesymlinks
+  ```
+
+## Optional configuration
+
+- `BASE_ROOT_DIR`: where backups and managed files live (default: `~/.ng`)
+- `DOTFILE_SRC`: source directory for dotfiles (default: repo root)
 
 ## Features
 

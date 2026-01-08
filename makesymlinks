@@ -1,21 +1,42 @@
 #!/bin/bash
 
-############################
-# This script creates symlinks from the home directory to any desired dotfiles in ~/dotfiles
-############################
+################################################################################
+# Dotfile Symlink Setup Script
+#
+# Description:
+#   Creates symlinks in your home directory pointing to dotfiles in your dotfiles repo.
+#
+# Usage:
+#   BASE_ROOT_DIR=/your/base/dir DOTFILE_SRC=/your/dotfiles/path ./makesymlinks
+#
+#   - BASE_ROOT_DIR: (optional) Root directory for storing backups and configs (default: ~/.ng)
+#   - DOTFILE_SRC:   (optional) Source directory containing your dotfiles (default: ~/Documents/GitHub/dotfiles)
+#
+################################################################################
 
 ############################
 # Variables
 ############################
-# base root directory for all ng configurations
-base_root_dir=~/.ng
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# dotfile app source directory
-dotfile_src=~/Documents/GitHub/dotfiles
+# base root directory for all ng configurations (override with BASE_ROOT_DIR)
+base_root_dir="${BASE_ROOT_DIR:-$HOME/.ng}"
+
+# dotfile app source directory (override with DOTFILE_SRC, fallback to script dir)
+dotfile_src="${DOTFILE_SRC:-$SCRIPT_DIR}"
+
+# resolve dotfile source and ensure it exists
+if RESOLVED_DOTFILE_SRC="$(cd "$dotfile_src" 2>/dev/null && pwd)"; then
+    dotfile_src="$RESOLVED_DOTFILE_SRC"
+else
+    echo "❌ DOTFILE_SRC path not found: $dotfile_src"
+    exit 1
+fi
+
 
 # old dotfiles backup directory (timestamped)
 timestamp=$(date +"%Y%m%d_%H%M%S")
-old_dir=$base_root_dir/dotfiles/backup/$timestamp
+old_dir="$base_root_dir/dotfiles/backup/$timestamp"
 
 # list of files/folders to symlink in homedir
 files="aliases emacs gemrc gitconfig Guardfile local-aliases tmux.conf Xmodmap xinitrc zshrc zprofile"
@@ -41,7 +62,7 @@ fi
 
 # create timestamped backup directory
 echo -n "|_ Creating $old_dir for backup of any existing dotfiles ..."
-mkdir -p $old_dir
+mkdir -p "$old_dir"
 echo "✅ done"
 
 
@@ -51,14 +72,14 @@ echo "✅ done"
 
 # change to the dotfiles directory
 echo -n "🚀 Changing to the $dotfile_src directory ..."
-cd $dotfile_src
+cd "$dotfile_src" || { echo "❌ Unable to cd to $dotfile_src"; exit 1; }
 echo "✅ done"
 
 # move any existing dotfiles in homedir to backup directory, then create symlinks from the homedir to any files in the ~/dotfiles directory specified in $files
 echo "🔗 Creating symlinks in home root..."
 for file in $files; do
-    mv ~/.$file $old_dir/ 2>/dev/null || true
+    mv ~/.$file "$old_dir"/ 2>/dev/null || true
     echo "|_ $(tput setaf 2)$file$(tput sgr0) -> $(tput setaf 5)~/.$file$(tput sgr0)"
-    ln -s $dotfile_src/$file ~/.$file
+    ln -s "$dotfile_src"/$file ~/.$file
 done
 echo "🎉 All symlinks created"
