@@ -34,6 +34,7 @@
   cleanup = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|develop'`
 [push]
   default = simple
+        autoSetupRemote = true
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
