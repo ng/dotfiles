@@ -1,6 +1,8 @@
 source ~/.aliases
 source ~/.local
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # zsh history
 export HISTFILESIZE=1000000000
 export HISTSIZE=1000000000
@@ -40,7 +42,9 @@ export PATH="$HOME/.poetry/bin:$PATH"
 HEROKU_AC_ZSH_SETUP_PATH=/Users/ng/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
 eval "$(pyenv init -)"
 
-# # Show Git branch
+# Claude
+
+## Show Git branch
 ## Load version control information
 autoload -Uz vcs_info
 precmd() { vcs_info }
@@ -59,3 +63,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Configure direnv
+eval "$(direnv hook zsh)"
