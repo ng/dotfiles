@@ -4,11 +4,11 @@ Sets up dotfiles with automatic backup and organized directory structure. Existi
 
 ## Usage
 
-- Quick bootstrap (installs tmux via apt-get or Homebrew, then links dotfiles):
+- Gitpod/Ubuntu (needs tmux install):  
   ```bash
   ./bootstrap
   ```
-- Link dotfiles only:
+- macOS or already have tmux:  
   ```bash
   ./makesymlinks
   ```

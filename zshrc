@@ -1,5 +1,15 @@
 source ~/.aliases
-source ~/.local
+source ~/.local-aliases
+
+# Homebrew (ensures brew-installed tools like fzf work in non-login shells/tmux)
+if [[ -x "/opt/homebrew/bin/brew" ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# fzf configuration (history, key bindings, colors)
+if [[ -f "$HOME/.fzf_config.zsh" ]]; then
+  source "$HOME/.fzf_config.zsh"
+fi
 
 # zsh history
 export HISTFILESIZE=1000000000
@@ -31,14 +41,13 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/shims:$PATH"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+# eval "$(pyenv init -)"
 
 # Poetry
 export PATH="$HOME/.poetry/bin:$PATH"
 
 # Heroku: autocomplete
 HEROKU_AC_ZSH_SETUP_PATH=/Users/ng/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
-eval "$(pyenv init -)"
 
 # # Show Git branch
 ## Load version control information

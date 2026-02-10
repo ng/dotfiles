@@ -1,7 +1,7 @@
 [user]
   name = Jonathan Ng
-	email = jon@jonathanng.com
-	signingkey = A0669F670815F0AA
+	email = ngj49@gene.com
+	signingkey = F4745927
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
@@ -24,13 +24,15 @@
   untracked = cyan reverse
   branch = magenta
 [alias]
+  s  = switch
   st = status
   ci = commit
   br = branch
   co = checkout
   df = diff
   lg = log -p
-  cleanup = ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|develop'`
+  com = !git checkout main && git pull origin main
+  cleanup = !git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|develop'`
 [push]
   default = simple
 [filter "media"]
