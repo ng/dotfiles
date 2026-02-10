@@ -11,6 +11,8 @@ if [[ -f "$HOME/.fzf_config.zsh" ]]; then
   source "$HOME/.fzf_config.zsh"
 fi
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # zsh history
 export HISTFILESIZE=1000000000
 export HISTSIZE=1000000000
@@ -49,7 +51,9 @@ export PATH="$HOME/.poetry/bin:$PATH"
 # Heroku: autocomplete
 HEROKU_AC_ZSH_SETUP_PATH=/Users/ng/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
 
-# # Show Git branch
+# Claude
+
+## Show Git branch
 ## Load version control information
 autoload -Uz vcs_info
 precmd() { vcs_info }
@@ -62,9 +66,12 @@ setopt PROMPT_SUBST
 PROMPT='%n@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%F{white}$ '
 
 # pnpm
-export PNPM_HOME="/Users/jonathanng/Library/pnpm"
+export PNPM_HOME="$HOME/.pnpm-global"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Configure direnv
+eval "$(direnv hook zsh)"

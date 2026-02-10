@@ -16,7 +16,7 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 # dev
-alias gh='cd ~/Documents/GitHub; ll; pwd'
+alias ghd='cd ~/Documents/GitHub; ll; pwd'
 alias pn='pnpm'
 
 # Canary

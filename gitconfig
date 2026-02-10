@@ -1,7 +1,7 @@
 [user]
   name = Jonathan Ng
-	email = ngj49@gene.com
-	signingkey = F4745927
+  email = ngj49@gene.com
+  signingkey = F4745927
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
@@ -24,7 +24,7 @@
   untracked = cyan reverse
   branch = magenta
 [alias]
-  s  = switch
+  s = switch
   st = status
   ci = commit
   br = branch
@@ -35,17 +35,18 @@
   cleanup = !git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|develop'`
 [push]
   default = simple
+        autoSetupRemote = true
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	required = true
-	process = git-lfs filter-process
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  required = true
+  process = git-lfs filter-process
 [gpg]
-	program = /opt/homebrew/bin/gpg
+  program = /opt/homebrew/bin/gpg
 [commit]
-	gpgsign = true
+  gpgsign = true
 [tag]
-	gpgSign = true
+  gpgSign = true
