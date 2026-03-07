@@ -7,8 +7,8 @@
 #
 # What gets linked:
 #   root_files     Listed below. Linked as ~/.name
-#   sourced/*      Auto-scanned. Linked as ~/.sourced_* (auto-prefixed)
-#   local/*        Auto-scanned. Linked as ~/.local_*   (gitignored)
+#   sourced/*      Auto-scanned. Linked as ~/.sourced_* (auto-sourced by zshrc)
+#   local/*        Auto-scanned. Linked as ~/.local_*   (non-shell configs, gitignored)
 #                  Templates in local.example/ copied on first run.
 #
 # Usage:
@@ -57,11 +57,24 @@ link() {
     echo "  $(green "$(basename "$src")") -> $(purple "~/.$name")"
 }
 
+# Nerd Font (for powerline tmux status bar)
+if command -v brew >/dev/null 2>&1; then
+    if ! ls ~/Library/Fonts/*NerdFont* &>/dev/null 2>&1; then
+        echo "Installing JetBrainsMono Nerd Font..."
+        brew install --cask font-jetbrains-mono-nerd-font
+        echo "  $(yellow "Set your terminal font to 'JetBrainsMono Nerd Font'")"
+    fi
+fi
+
 # TPM (tmux plugin manager)
 if [ ! -d ~/.tmux/plugins/tpm ]; then
     echo "Installing TPM..."
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
+
+# Tmux helper scripts
+echo "Linking tmux scripts..."
+ln -sfn "$dotfile_src/tmux" ~/.dotfiles-tmux
 
 mkdir -p "$backup_dir"
 
