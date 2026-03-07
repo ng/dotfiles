@@ -1,7 +1,7 @@
 [user]
   name = Jonathan Ng
-  email = ngj49@gene.com
-  signingkey = F4745927
+  email = jon@jonathanng.com
+  signingkey = 1A6D35E6D2AA9BEF
 [core]
   quotepath = false
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
@@ -45,7 +45,7 @@
   required = true
   process = git-lfs filter-process
 [gpg]
-  program = /opt/homebrew/bin/gpg
+	program = /opt/homebrew/bin/gpg
 [commit]
   gpgsign = true
 [tag]
