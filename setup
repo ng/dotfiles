@@ -1,0 +1,98 @@
+#!/bin/bash
+
+################################################################################
+# Dotfiles Setup
+#
+# Backs up existing dotfiles, creates symlinks, and bootstraps local configs.
+#
+# What gets linked:
+#   root_files     Listed below. Linked as ~/.name
+#   sourced/*      Auto-scanned. Linked as ~/.sourced_* (auto-prefixed)
+#   local/*        Auto-scanned. Linked as ~/.local_*   (gitignored)
+#                  Templates in local.example/ copied on first run.
+#
+# Usage:
+#   ./setup
+#   BASE_ROOT_DIR=~/.mydir DOTFILE_SRC=/path/to/dotfiles ./setup
+#
+# Options (env vars):
+#   BASE_ROOT_DIR  Root for backups (default: ~/.ng)
+#   DOTFILE_SRC    Dotfiles repo path (default: script directory)
+################################################################################
+
+# Root dotfiles: linked as ~/.name (or ~/.dotfile_name if using name:dotfile_name)
+root_files=(
+    # Shell
+    aliases
+    bashrc
+    zshrc
+    zprofile
+    # Tools
+    emacs
+    gitconfig
+    tmux.conf
+    gemrc
+    Guardfile
+    Xmodmap
+    xinitrc
+)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+dotfile_src="$(cd "${DOTFILE_SRC:-$SCRIPT_DIR}" 2>/dev/null && pwd)" || {
+    echo "DOTFILE_SRC not found: ${DOTFILE_SRC:-$SCRIPT_DIR}"; exit 1
+}
+base_root_dir="${BASE_ROOT_DIR:-$HOME/.ng}"
+backup_dir="$base_root_dir/dotfiles/backup/$(date +%Y%m%d_%H%M%S)"
+
+green() { tput setaf 2; printf '%s' "$1"; tput sgr0; }
+purple() { tput setaf 5; printf '%s' "$1"; tput sgr0; }
+yellow() { tput setaf 3; printf '%s' "$1"; tput sgr0; }
+
+link() {
+    local src="$1" name="$2"
+    mv ~/."$name" "$backup_dir"/ 2>/dev/null || true
+    ln -sf "$src" ~/."$name"
+    echo "  $(green "$(basename "$src")") -> $(purple "~/.$name")"
+}
+
+# TPM (tmux plugin manager)
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+    echo "Installing TPM..."
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+fi
+
+mkdir -p "$backup_dir"
+
+# Root symlinks
+echo "Linking root configs..."
+for entry in "${root_files[@]}"; do
+    repo_file="${entry%%:*}"
+    dotfile_name="${entry##*:}"
+    link "$dotfile_src/$repo_file" "$dotfile_name"
+done
+
+# sourced/ -> ~/.sourced_*
+echo "Linking sourced configs..."
+for file in "$dotfile_src"/sourced/*; do
+    [ -f "$file" ] || continue
+    link "$file" "sourced_$(basename "$file")"
+done
+
+# local/ -> ~/.local_* (bootstrap from local.example/ on first run)
+echo "Linking local configs..."
+for example in "$dotfile_src"/local.example/*; do
+    [ -f "$example" ] || continue
+    name="$(basename "$example")"
+    if [ ! -f "$dotfile_src/local/$name" ]; then
+        cp "$example" "$dotfile_src/local/$name"
+        echo "  $(yellow "created local/$name from template")"
+    fi
+done
+for file in "$dotfile_src"/local/*; do
+    [ -f "$file" ] || continue
+    link "$file" "local_$(basename "$file")"
+done
+
+echo "Done."

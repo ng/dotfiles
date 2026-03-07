@@ -1,15 +1,16 @@
 source ~/.aliases
-source ~/.local-aliases
+
+# Auto-source all sourced_* and local_* dotfiles
+for f in ~/.sourced_* ~/.local_*; do
+  [[ -f "$f" ]] && source "$f"
+done
 
 # Homebrew (ensures brew-installed tools like fzf work in non-login shells/tmux)
 if [[ -x "/opt/homebrew/bin/brew" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# fzf configuration (history, key bindings, colors)
-if [[ -f "$HOME/.fzf_config.zsh" ]]; then
-  source "$HOME/.fzf_config.zsh"
-fi
+# fzf config + helpers loaded via ~/.sourced_* auto-source above
 
 export PATH="$HOME/.local/bin:$PATH"
 

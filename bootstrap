@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Description:
-#   Installs tmux (via apt-get or brew) if missing and then runs makesymlinks
+#   Installs tmux (via apt-get or brew) if missing and then runs setup
 #   to set up dotfile symlinks.
 #
 # Usage:
@@ -14,7 +14,7 @@
 # Requirements:
 #   - apt-get (Ubuntu) or brew (macOS)
 #   - sudo privileges for package installation (if required by your system)
-#   - makesymlinks script in the same directory
+#   - setup script in the same directory
 #
 ################################################################################
 
@@ -87,8 +87,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_BASE_ROOT_DIR="${BASE_ROOT_DIR:-$HOME/.ng}"
 DEFAULT_DOTFILE_SRC="${DOTFILE_SRC:-$SCRIPT_DIR}"
 
-if [[ ! -f "$SCRIPT_DIR/makesymlinks" ]]; then
-    print_error "makesymlinks script not found at $SCRIPT_DIR/makesymlinks"
+if [[ ! -f "$SCRIPT_DIR/setup" ]]; then
+    print_error "setup script not found at $SCRIPT_DIR/setup"
     exit 1
 fi
 
@@ -105,5 +105,5 @@ print_info "Setting up symlinks..."
 print_info "BASE_ROOT_DIR=${DEFAULT_BASE_ROOT_DIR}"
 print_info "DOTFILE_SRC=${RESOLVED_DOTFILE_SRC}"
 
-BASE_ROOT_DIR="$DEFAULT_BASE_ROOT_DIR" DOTFILE_SRC="$RESOLVED_DOTFILE_SRC" bash "$SCRIPT_DIR/makesymlinks"
+BASE_ROOT_DIR="$DEFAULT_BASE_ROOT_DIR" DOTFILE_SRC="$RESOLVED_DOTFILE_SRC" bash "$SCRIPT_DIR/setup"
 print_success "Symlink setup complete"

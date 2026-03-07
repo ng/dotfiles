@@ -1,0 +1,6 @@
+# Machine-local git identity (not version controlled)
+# Copy to local/gitconfig and edit for your machine
+[user]
+  name = Your Name
+  email = you@example.com
+  signingkey = YOUR_GPG_KEY
