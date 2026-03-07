@@ -1,7 +1,8 @@
 source ~/.aliases
 
-# Auto-source all sourced_* and local_* dotfiles
-for f in ~/.sourced_* ~/.local_*; do
+# Auto-source all sourced_* dotfiles
+# (local/ is for non-shell configs like gitconfig — consumed by their own tools)
+for f in ~/.sourced_*; do
   [[ -f "$f" ]] && source "$f"
 done
 
@@ -62,7 +63,7 @@ zstyle ':vcs_info:git:*' formats '%b'
 
 ## Set up the prompt (with git branch name)
 setopt PROMPT_SUBST
-PROMPT='%n@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%F{white}$ '
+PROMPT='%(?.%F{green}.%F{red})%n%f@%T: %F{blue}%1~%F{green}[${vcs_info_msg_0_}]%f$ '
 
 # pnpm
 export PNPM_HOME="$HOME/.pnpm-global"

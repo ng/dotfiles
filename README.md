@@ -26,11 +26,11 @@ root/                 -> ~/.filename      app-expected dotfiles (1:1 symlinks)
 sourced/              -> ~/.sourced_*     auto-prefixed, auto-sourced by zshrc
   fzf-config          fzf options, colors, keybinds
   fzf-helpers         fkill, fport, fenv
-  git-fzf             glog, gdiff, gtree, fbranch, fstash
+  fzf-git             glog, gdiff, gtree, fbranch, fstash
   claude-config       claude code env vars
+  local-aliases       machine-local aliases (gitignored)
 
-local/                -> ~/.local_*       machine-specific (gitignored)
-  aliases             local aliases, env vars
+local/                -> ~/.local_*       non-shell configs (gitignored)
   gitconfig           per-machine git user/signing key
 
 local.example/                            tracked templates for local/
@@ -40,9 +40,12 @@ local.example/                            tracked templates for local/
 
 **Root files** are configs apps look for at `~/.X` by convention.
 
-**sourced/** and **local/** files are auto-prefixed (`sourced_`, `local_`) when
-symlinked to prevent conflicts with app directories (e.g. `~/.claude`, `~/.local`).
-The zshrc auto-source loop picks up all `~/.sourced_*` and `~/.local_*` files.
+**sourced/** files are auto-prefixed (`sourced_`) when symlinked to prevent
+conflicts with app directories (e.g. `~/.claude`, `~/.local`). The zshrc
+auto-source loop picks up all `~/.sourced_*` files.
+
+**local/** files are auto-prefixed (`local_`) and gitignored. These are for
+non-shell configs consumed by their own tools (e.g. gitconfig via `[include]`).
 
 On first run, `./setup` copies `local.example/*` into `local/` so you have starter
 files to edit. Subsequent runs won't overwrite your local configs.

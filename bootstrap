@@ -99,6 +99,53 @@ else
     exit 1
 fi
 
+install_font() {
+    local font_name="JetBrainsMono"
+
+    # Check if already installed
+    if [[ "$(uname)" == "Darwin" ]]; then
+        if ls ~/Library/Fonts/*NerdFont* &>/dev/null || ls ~/Library/Fonts/*"$font_name"* &>/dev/null; then
+            print_success "Nerd Font already installed"
+            return
+        fi
+    else
+        if fc-list 2>/dev/null | grep -qi "nerd\|$font_name"; then
+            print_success "Nerd Font already installed"
+            return
+        fi
+    fi
+
+    print_step "Installing $font_name Nerd Font..."
+
+    if have_cmd brew; then
+        brew install --cask font-jetbrains-mono-nerd-font
+    else
+        # Linux: download and install manually
+        local font_dir="${HOME}/.local/share/fonts"
+        mkdir -p "$font_dir"
+        local tmp_dir
+        tmp_dir=$(mktemp -d)
+        local url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font_name}.zip"
+        print_info "Downloading from $url..."
+        if have_cmd curl; then
+            curl -fsSL -o "$tmp_dir/$font_name.zip" "$url"
+        elif have_cmd wget; then
+            wget -q -O "$tmp_dir/$font_name.zip" "$url"
+        else
+            print_error "Need curl or wget to download font"
+            rm -rf "$tmp_dir"
+            return 1
+        fi
+        unzip -qo "$tmp_dir/$font_name.zip" -d "$font_dir"
+        rm -rf "$tmp_dir"
+        fc-cache -f "$font_dir" 2>/dev/null
+    fi
+
+    print_success "$font_name Nerd Font installed"
+    print_warn "Set your terminal font to 'JetBrainsMono Nerd Font' for powerline symbols"
+}
+
+install_font
 install_tmux
 
 print_info "Setting up symlinks..."
@@ -107,3 +154,13 @@ print_info "DOTFILE_SRC=${RESOLVED_DOTFILE_SRC}"
 
 BASE_ROOT_DIR="$DEFAULT_BASE_ROOT_DIR" DOTFILE_SRC="$RESOLVED_DOTFILE_SRC" bash "$SCRIPT_DIR/setup"
 print_success "Symlink setup complete"
+
+# Claude Code plugins
+if have_cmd claude; then
+    print_step "Installing Claude Code plugins..."
+    claude plugin marketplace add Q00/ouroboros 2>/dev/null || true
+    claude plugin install ouroboros@ouroboros 2>/dev/null || true
+    print_success "Claude Code plugins installed"
+else
+    print_warn "Claude Code not found — skipping plugin install"
+fi
