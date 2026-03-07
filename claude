@@ -1,0 +1,8 @@
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# claude-sandbox - run Claude Code in an isolated Docker container
+CLAUDE_SANDBOX_DIR="/Users/ng/Documents/GitHub/claude-sandbox"
+claude-sandbox() {
+  local env_file="$CLAUDE_SANDBOX_DIR/.env"
+  docker run --rm -it     --env-file "$env_file"     -v "$(pwd):/workspaces/project"     -w /workspaces/project     claude-sandbox     claude --dangerously-skip-permissions "$@"
+}

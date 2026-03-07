@@ -51,8 +51,6 @@ export PATH="$HOME/.poetry/bin:$PATH"
 # Heroku: autocomplete
 HEROKU_AC_ZSH_SETUP_PATH=/Users/ng/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
 
-# Claude
-
 ## Show Git branch
 ## Load version control information
 autoload -Uz vcs_info
