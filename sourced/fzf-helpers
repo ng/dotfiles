@@ -1,0 +1,39 @@
+# General fzf helpers (non-git)
+# Sourced automatically via dotfiles sourced/ dir
+#
+# Preview pane: Ctrl-D/Ctrl-U to scroll, Ctrl-/ to toggle
+
+# fkill - browse and kill processes
+fkill() {
+  ps -ef |
+    sed 1d |
+    fzf --multi \
+      --header 'Tab: select multiple | Enter: kill' \
+      --preview 'echo {}' \
+      --preview-window=down:3:wrap |
+    awk '{print $2}' |
+    xargs kill -${1:-9}
+}
+
+# fport - find process on a port and optionally kill it
+fport() {
+  lsof -iTCP -sTCP:LISTEN -nP |
+    sed 1d |
+    fzf \
+      --header 'Enter: kill process on port' \
+      --preview 'echo {}' \
+      --preview-window=down:3:wrap |
+    awk '{print $2}' |
+    xargs kill -9
+}
+
+# fenv - search environment variables
+fenv() {
+  env | sort |
+    fzf \
+      --preview 'echo {2..}' \
+      --preview-window=down:3:wrap \
+      --delimiter='=' \
+      --header 'Enter: copy value' \
+      --bind 'enter:become(echo {2..})'
+}

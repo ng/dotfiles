@@ -1,0 +1,57 @@
+# Git + fzf helpers
+# Sourced automatically via dotfiles sourced/ dir
+#
+# Preview pane: Ctrl-D/Ctrl-U to scroll, Ctrl-/ to toggle
+
+# glog - browse git log, preview shows diff for each commit
+# Enter to copy commit hash, Ctrl-O to checkout
+glog() {
+  git log --oneline --color=always --decorate |
+    fzf --ansi --no-sort \
+      --preview 'git show --color=always --stat --patch {1}' \
+      --preview-window=right:60%:wrap \
+      --bind 'enter:become(echo {1})' \
+      --bind 'ctrl-o:execute(git checkout {1})+abort' \
+      --header 'Enter: copy hash | Ctrl-O: checkout'
+}
+
+# gdiff - browse changed files, preview shows the diff
+# Works on staged + unstaged by default, pass args like HEAD~3 for range
+gdiff() {
+  git diff --name-only --color=never "$@" |
+    fzf --ansi --no-sort \
+      --preview "git diff --color=always $* -- {}" \
+      --preview-window=right:65%:wrap \
+      --bind 'enter:become(echo {})' \
+      --header 'Enter: copy filename'
+}
+
+# gtree - browse all tracked files, preview shows file content
+gtree() {
+  git ls-files |
+    fzf --preview 'bat --style=numbers --color=always {} 2>/dev/null || cat {}' \
+      --preview-window=right:60%:wrap \
+      --bind 'enter:become(echo {})' \
+      --header 'Enter: copy path'
+}
+
+# fbranch - quick git branch switcher with log preview
+fbranch() {
+  git branch --all --sort=-committerdate --format='%(refname:short)' |
+    fzf --preview 'git log --oneline --color=always -20 {}' \
+      --preview-window=right:50%:wrap \
+      --bind 'enter:become(git checkout {})' \
+      --header 'Enter: checkout branch'
+}
+
+# fstash - browse git stashes with diff preview
+# Enter to apply, Ctrl-X to drop
+fstash() {
+  git stash list --color=always |
+    fzf --ansi --no-sort \
+      --preview 'git stash show --color=always -p $(echo {} | cut -d: -f1)' \
+      --preview-window=right:60%:wrap \
+      --bind 'enter:execute(git stash apply $(echo {} | cut -d: -f1))+abort' \
+      --bind 'ctrl-x:execute(git stash drop $(echo {} | cut -d: -f1))+abort' \
+      --header 'Enter: apply | Ctrl-X: drop'
+}
