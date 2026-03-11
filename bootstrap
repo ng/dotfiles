@@ -145,8 +145,25 @@ install_font() {
     print_warn "Set your terminal font to 'JetBrainsMono Nerd Font' for powerline symbols"
 }
 
+install_rtk() {
+    if have_cmd rtk; then
+        print_success "rtk is already installed"
+        return
+    fi
+
+    print_step "Installing rtk..."
+    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+
+    if have_cmd rtk; then
+        print_success "rtk installed"
+    else
+        print_warn "rtk installation finished but rtk command not found in PATH"
+    fi
+}
+
 install_font
 install_tmux
+install_rtk
 
 print_info "Setting up symlinks..."
 print_info "BASE_ROOT_DIR=${DEFAULT_BASE_ROOT_DIR}"
