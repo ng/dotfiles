@@ -8,8 +8,8 @@ done
 # Source local env files (machine-specific secrets, not committed)
 # local/ also holds non-shell configs like gitconfig — only *.env files are sourced
 DOTFILES_DIR="$(cd "$(dirname "$(readlink -f ~/.zshrc 2>/dev/null || echo ~/.zshrc)")" && pwd)"
-for f in "$DOTFILES_DIR"/local/*.env; do
-  [[ -f "$f" ]] && source "$f"
+for f in "$DOTFILES_DIR"/local/*.env(N); do
+  source "$f"
 done
 
 # Homebrew (ensures brew-installed tools like fzf work in non-login shells/tmux)
