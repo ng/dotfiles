@@ -1,8 +1,14 @@
 source ~/.aliases
 
 # Auto-source all sourced_* dotfiles
-# (local/ is for non-shell configs like gitconfig — consumed by their own tools)
 for f in ~/.sourced_*; do
+  [[ -f "$f" ]] && source "$f"
+done
+
+# Source local env files (machine-specific secrets, not committed)
+# local/ also holds non-shell configs like gitconfig — only *.env files are sourced
+DOTFILES_DIR="$(cd "$(dirname "$(readlink -f ~/.zshrc 2>/dev/null || echo ~/.zshrc)")" && pwd)"
+for f in "$DOTFILES_DIR"/local/*.env; do
   [[ -f "$f" ]] && source "$f"
 done
 
@@ -14,6 +20,7 @@ fi
 # fzf config + helpers loaded via ~/.sourced_* auto-source above
 
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
 
 # zsh history
 export HISTFILESIZE=1000000000
