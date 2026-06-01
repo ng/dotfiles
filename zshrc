@@ -75,3 +75,26 @@ esac
 
 # Configure direnv
 eval "$(direnv hook zsh)"
+
+# Auto-switch Node version on cd when a .nvmrc is present (nvm deeper-shell-integration).
+# Placed last so nvm's PATH entry wins over Homebrew node / other prepends above.
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local nvmrc_path
+  nvmrc_path="$(nvm_find_nvmrc)"
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version
+    nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
+      nvm use
+    fi
+  elif [ "$(nvm version)" != "$(nvm version default)" ]; then
+    # No .nvmrc here — fall back to the nvm default (so every shell uses it, not just project dirs)
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
+
