@@ -21,6 +21,7 @@ _fzf_aws_profiles() {
 
 # Who a profile maps to per ~/.aws/config (account + role)
 _fzf_aws_whois() {
+  [ -f ~/.aws/config ] || return 1
   awk -v prof="$1" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
     $0==h||$0==b{f=1;next} /^\[/{f=0}
     f && $1=="sso_account_id"{acct=$3} f && $1=="sso_role_name"{role=$3}
@@ -42,6 +43,7 @@ _fzf_aws_header() {
 
 # SSO start URL for a profile — via its sso_session section or inline legacy key
 _fzf_aws_sso_url() {
+  [ -f ~/.aws/config ] || return 1
   awk -v prof="$1" '
     /^\[/{sec=substr($0,2,length($0)-2)}
     $1=="sso_session" && (sec=="profile " prof || sec==prof) {sess=$3}
@@ -75,8 +77,9 @@ _fzf_aws_sso_ok() {
 # all from local files so it renders instantly
 _fzf_aws_preview() {
   local p="$1" exp
-  awk -v prof="$p" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
-    $0==h||$0==b{f=1} /^\[/&&$0!=h&&$0!=b{f=0} f' ~/.aws/config
+  [ -f ~/.aws/config ] &&
+    awk -v prof="$p" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
+      $0==h||$0==b{f=1} /^\[/&&$0!=h&&$0!=b{f=0} f' ~/.aws/config
   echo
   [ "$AWS_PROFILE" = "$p" ] && echo "● active (AWS_PROFILE)"
   if exp=$(_fzf_aws_sso_expiry "$p"); then
@@ -98,10 +101,10 @@ faws() {
       --preview 'source ~/.sourced_fzf-aws; _fzf_aws_preview {}' \
       --preview-window=right:60%:wrap \
       --header "$(_fzf_aws_header 'Enter: switch profile (auto SSO login if needed) | green = active')") || return
-  export AWS_PROFILE="$profile"
   if [ -n "$(_fzf_aws_sso_url "$profile")" ] && ! _fzf_aws_sso_ok "$profile"; then
     aws sso login --profile "$profile" || return
   fi
+  export AWS_PROFILE="$profile"
   _fzf_aws_active "$profile"
 }
 
@@ -113,6 +116,10 @@ fawslogin() {
       --preview 'source ~/.sourced_fzf-aws; _fzf_aws_preview {}' \
       --preview-window=right:60%:wrap \
       --header "$(_fzf_aws_header 'Enter: aws sso login | green = active')") || return
+  if [ -z "$(_fzf_aws_sso_url "$profile")" ]; then
+    echo "✗ $profile has no SSO config" >&2
+    return 1
+  fi
   aws sso login --profile "$profile"
 }
 
