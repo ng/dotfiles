@@ -4,12 +4,16 @@
 # Preview pane: Ctrl-D/Ctrl-U to scroll, Ctrl-/ to toggle
 # Plain functions (no become) so export AWS_PROFILE affects the current shell
 
+# Preview: instant profile section from ~/.aws/config via awk, then the slow
+# `aws configure list` (Python CLI, ~1s cold start) streams in below it
+_fzf_aws_preview="awk -v prof={} 'BEGIN{p=\"[profile \" prof \"]\"; d=\"[\" prof \"]\"} \$0==p||\$0==d{f=1} /^\[/&&\$0!=p&&\$0!=d{f=0} f' ~/.aws/config; echo; aws configure list --profile {}"
+
 # faws - pick an AWS profile, export it, SSO login if creds are missing/expired
 faws() {
   local profile
   profile=$(aws configure list-profiles | sort |
     fzf --no-sort \
-      --preview 'aws configure list --profile {}' \
+      --preview "$_fzf_aws_preview" \
       --preview-window=right:60%:wrap \
       --header 'Enter: switch profile (auto SSO login if needed)') || return
   export AWS_PROFILE="$profile"
@@ -24,7 +28,7 @@ fawslogin() {
   local profile
   profile=$(aws configure list-profiles | sort |
     fzf --no-sort \
-      --preview 'aws configure list --profile {}' \
+      --preview "$_fzf_aws_preview" \
       --preview-window=right:60%:wrap \
       --header 'Enter: aws sso login') || return
   aws sso login --profile "$profile"
