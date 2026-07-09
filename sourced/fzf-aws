@@ -1,0 +1,36 @@
+# AWS + fzf helpers
+# Sourced automatically via dotfiles sourced/ dir
+#
+# Preview pane: Ctrl-D/Ctrl-U to scroll, Ctrl-/ to toggle
+# Plain functions (no become) so export AWS_PROFILE affects the current shell
+
+# faws - pick an AWS profile, export it, SSO login if creds are missing/expired
+faws() {
+  local profile
+  profile=$(aws configure list-profiles | sort |
+    fzf --no-sort \
+      --preview 'aws configure list --profile {}' \
+      --preview-window=right:60%:wrap \
+      --header 'Enter: switch profile (auto SSO login if needed)') || return
+  export AWS_PROFILE="$profile"
+  if ! aws sts get-caller-identity >/dev/null 2>&1; then
+    aws sso login --profile "$profile" || return
+  fi
+  aws sts get-caller-identity --output table
+}
+
+# fawslogin - pick an AWS profile and run SSO login without switching profiles
+fawslogin() {
+  local profile
+  profile=$(aws configure list-profiles | sort |
+    fzf --no-sort \
+      --preview 'aws configure list --profile {}' \
+      --preview-window=right:60%:wrap \
+      --header 'Enter: aws sso login') || return
+  aws sso login --profile "$profile"
+}
+
+# fawsoff - clear the active AWS profile from the current shell
+fawsoff() {
+  unset AWS_PROFILE AWS_DEFAULT_PROFILE
+}
