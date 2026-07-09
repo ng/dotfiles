@@ -5,9 +5,34 @@
 # Plain functions (no become) so export AWS_PROFILE affects the current shell
 
 # Profile list for the left column, active profile (AWS_PROFILE) in bold green
+# Parsed straight from ~/.aws/config + ~/.aws/credentials — `aws configure
+# list-profiles` is the Python CLI and takes seconds before fzf can even open
 _fzf_aws_profiles() {
-  aws configure list-profiles | sort |
+  {
+    [ -f ~/.aws/config ] &&
+      awk '/^\[profile /{sub(/^\[profile /,""); sub(/\]$/,""); print} /^\[default\]/{print "default"}' ~/.aws/config
+    [ -f ~/.aws/credentials ] &&
+      awk -F'[][]' '/^\[/{print $2}' ~/.aws/credentials
+  } | sort -u |
     awk -v cur="$AWS_PROFILE" '{if ($0 == cur) printf "\033[1;32m%s\033[0m\n", $0; else print}'
+}
+
+# Who a profile maps to per ~/.aws/config (account + role, no network call)
+_fzf_aws_whois() {
+  awk -v prof="$1" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
+    $0==h||$0==b{f=1;next} /^\[/{f=0}
+    f && $1=="sso_account_id"{acct=$3} f && $1=="sso_role_name"{role=$3}
+    END{if (acct) print acct " " role}' ~/.aws/config
+}
+
+# fzf --header showing current AWS_PROFILE and its mapping above the hint line
+_fzf_aws_header() {
+  local who
+  if [ -n "$AWS_PROFILE" ]; then
+    who=$(_fzf_aws_whois "$AWS_PROFILE")
+    print -r -- "active: $AWS_PROFILE${who:+ → $who}"
+  fi
+  print -r -- "$1"
 }
 
 # Preview: instant profile section from ~/.aws/config via awk, then the slow
@@ -27,7 +52,7 @@ faws() {
     fzf --ansi --no-sort \
       --preview "$_fzf_aws_preview" \
       --preview-window=right:60%:wrap \
-      --header 'Enter: switch profile (auto SSO login if needed) | green = active') || return
+      --header "$(_fzf_aws_header 'Enter: switch profile (auto SSO login if needed) | green = active')") || return
   export AWS_PROFILE="$profile"
   arn=$(aws sts get-caller-identity --query Arn --output text 2>/dev/null) || {
     aws sso login --profile "$profile" || return
@@ -43,7 +68,7 @@ fawslogin() {
     fzf --ansi --no-sort \
       --preview "$_fzf_aws_preview" \
       --preview-window=right:60%:wrap \
-      --header 'Enter: aws sso login | green = active') || return
+      --header "$(_fzf_aws_header 'Enter: aws sso login | green = active')") || return
   aws sso login --profile "$profile"
 }
 
