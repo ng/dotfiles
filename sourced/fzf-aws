@@ -3,10 +3,12 @@
 #
 # Preview pane: Ctrl-D/Ctrl-U to scroll, Ctrl-/ to toggle
 # Plain functions (no become) so export AWS_PROFILE affects the current shell
+#
+# Everything reads local files (~/.aws/config, ~/.aws/sso/cache) — the aws
+# CLI is a Python program with seconds of cold start, only `aws sso login`
+# actually needs it
 
 # Profile list for the left column, active profile (AWS_PROFILE) in bold green
-# Parsed straight from ~/.aws/config + ~/.aws/credentials — `aws configure
-# list-profiles` is the Python CLI and takes seconds before fzf can even open
 _fzf_aws_profiles() {
   {
     [ -f ~/.aws/config ] &&
@@ -17,7 +19,7 @@ _fzf_aws_profiles() {
     awk -v cur="$AWS_PROFILE" '{if ($0 == cur) printf "\033[1;32m%s\033[0m\n", $0; else print}'
 }
 
-# Who a profile maps to per ~/.aws/config (account + role, no network call)
+# Who a profile maps to per ~/.aws/config (account + role)
 _fzf_aws_whois() {
   awk -v prof="$1" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
     $0==h||$0==b{f=1;next} /^\[/{f=0}
@@ -25,40 +27,82 @@ _fzf_aws_whois() {
     END{if (acct) print acct " " role}' ~/.aws/config
 }
 
+# "active: <profile> → <account> <role>" line for a profile
+_fzf_aws_active() {
+  local who
+  who=$(_fzf_aws_whois "$1")
+  print -r -- "active: $1${who:+ → $who}"
+}
+
 # fzf --header showing current AWS_PROFILE and its mapping above the hint line
 _fzf_aws_header() {
-  local who
-  if [ -n "$AWS_PROFILE" ]; then
-    who=$(_fzf_aws_whois "$AWS_PROFILE")
-    print -r -- "active: $AWS_PROFILE${who:+ → $who}"
-  fi
+  [ -n "$AWS_PROFILE" ] && _fzf_aws_active "$AWS_PROFILE"
   print -r -- "$1"
 }
 
-# Preview: instant profile section from ~/.aws/config via awk, then the slow
-# caller-identity check streams in below as parseable key: value lines
-_fzf_aws_preview='p={}
-awk -v prof="$p" '\''BEGIN{h="[profile " prof "]"; b="[" prof "]"} $0==h||$0==b{f=1} /^\[/&&$0!=h&&$0!=b{f=0} f'\'' ~/.aws/config
-echo
-[ "$AWS_PROFILE" = "$p" ] && echo "● active (AWS_PROFILE)"
-arn=$(aws sts get-caller-identity --profile "$p" --query Arn --output text 2>/dev/null) &&
-  echo "$arn" | awk -F: '\''{print "account: " $5 "\ncaller:  " $6}'\'' ||
-  echo "✗ no valid session"'
+# SSO start URL for a profile — via its sso_session section or inline legacy key
+_fzf_aws_sso_url() {
+  awk -v prof="$1" '
+    /^\[/{sec=substr($0,2,length($0)-2)}
+    $1=="sso_session" && (sec=="profile " prof || sec==prof) {sess=$3}
+    $1=="sso_start_url" {
+      if (sec=="profile " prof || sec==prof) purl=$3
+      if (index(sec,"sso-session ")==1) surl[substr(sec,13)]=$3
+    }
+    END{if (purl) print purl; else if (sess != "") print surl[sess]}
+  ' ~/.aws/config
+}
 
-# faws - pick an AWS profile, export it, SSO login if creds are missing/expired
+# Cached SSO token expiry for a profile from ~/.aws/sso/cache; fails if none
+_fzf_aws_sso_expiry() {
+  local url exp
+  url=$(_fzf_aws_sso_url "$1")
+  [ -n "$url" ] || return 1
+  exp=$(grep -lF "\"startUrl\": \"$url\"" ~/.aws/sso/cache/*.json 2>/dev/null |
+    xargs grep -ho '"expiresAt": *"[^"]*"' 2>/dev/null | cut -d'"' -f4 | sort | tail -1)
+  [ -n "$exp" ] || return 1
+  print -r -- "$exp"
+}
+
+# True if the profile has a cached, unexpired SSO token
+_fzf_aws_sso_ok() {
+  local exp
+  exp=$(_fzf_aws_sso_expiry "$1") || return 1
+  [[ "$exp" > "$(date -u +%Y-%m-%dT%H:%M:%SZ)" ]]
+}
+
+# Preview: profile section from ~/.aws/config + active marker + sso status,
+# all from local files so it renders instantly
+_fzf_aws_preview() {
+  local p="$1" exp
+  awk -v prof="$p" 'BEGIN{h="[profile " prof "]"; b="[" prof "]"}
+    $0==h||$0==b{f=1} /^\[/&&$0!=h&&$0!=b{f=0} f' ~/.aws/config
+  echo
+  [ "$AWS_PROFILE" = "$p" ] && echo "● active (AWS_PROFILE)"
+  if exp=$(_fzf_aws_sso_expiry "$p"); then
+    if [[ "$exp" > "$(date -u +%Y-%m-%dT%H:%M:%SZ)" ]]; then
+      echo "sso: ✓ valid until $exp"
+    else
+      echo "sso: ✗ expired $exp"
+    fi
+  elif [ -n "$(_fzf_aws_sso_url "$p")" ]; then
+    echo "sso: ✗ not logged in"
+  fi
+}
+
+# faws - pick an AWS profile, export it, SSO login if token is missing/expired
 faws() {
-  local profile arn
+  local profile
   profile=$(_fzf_aws_profiles |
     fzf --ansi --no-sort \
-      --preview "$_fzf_aws_preview" \
+      --preview 'source ~/.sourced_fzf-aws; _fzf_aws_preview {}' \
       --preview-window=right:60%:wrap \
       --header "$(_fzf_aws_header 'Enter: switch profile (auto SSO login if needed) | green = active')") || return
   export AWS_PROFILE="$profile"
-  arn=$(aws sts get-caller-identity --query Arn --output text 2>/dev/null) || {
+  if [ -n "$(_fzf_aws_sso_url "$profile")" ] && ! _fzf_aws_sso_ok "$profile"; then
     aws sso login --profile "$profile" || return
-    arn=$(aws sts get-caller-identity --query Arn --output text) || return
-  }
-  echo "$arn" | awk -F: '{print "account: " $5 "\ncaller:  " $6}'
+  fi
+  _fzf_aws_active "$profile"
 }
 
 # fawslogin - pick an AWS profile and run SSO login without switching profiles
@@ -66,7 +110,7 @@ fawslogin() {
   local profile
   profile=$(_fzf_aws_profiles |
     fzf --ansi --no-sort \
-      --preview "$_fzf_aws_preview" \
+      --preview 'source ~/.sourced_fzf-aws; _fzf_aws_preview {}' \
       --preview-window=right:60%:wrap \
       --header "$(_fzf_aws_header 'Enter: aws sso login | green = active')") || return
   aws sso login --profile "$profile"
