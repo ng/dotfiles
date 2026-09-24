@@ -57,11 +57,27 @@ function adb-sync() {
   echo -e "\033[1;34m📁 Destination Path: \033[0m$destination_path"
 
   # Execute the adb push command
-  adb push "${source_dir%/}/." "$destination_path"
+  adb push "${source_dir%/}/." "$destination_path" || return
 
- # Get the file count in the destination directory
+  # ADB copies bypass MediaStore. Scan each file so Photos can discover it.
+  # Quote the destination for the Android shell, including embedded apostrophes.
+  local single_quote="'" escaped_quote="'\\''"
+  local quoted_destination="'${destination_path//$single_quote/$escaped_quote}'"
+  echo -e "\033[1;33m🔍 Requesting Android media scans...\033[0m"
+  adb shell "sh -s -- $quoted_destination" <<'ANDROID_SCAN' || return
+find "$1" -type f -exec sh -c '
+  for file do
+    am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+      -d "file://$file" >/dev/null || exit
+  done
+' sh {} +
+ANDROID_SCAN
+
+  echo -e "\033[1;32m✅ Media scans requested. Google Photos handles uploads when backup is enabled; check Photos for completion.\033[0m"
+
+  # Get the file count in the destination directory
   echo -e "\033[1;33m🔍 Fetching file count in destination directory...\033[0m"
-  local file_count=$(adb shell "ls \"$destination_path\" | wc -l")
+  local file_count=$(adb shell "ls $quoted_destination | wc -l")
 
   echo -e "\033[1;36m📋 File Count in $destination_path: $file_count\033[0m"
 }
